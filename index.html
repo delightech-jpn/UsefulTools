@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>献立検索</title>
+  <style>
+    body{font-family: system-ui, -apple-system, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif; padding:20px}
+    label{display:block;margin-top:10px}
+    input, select, textarea{width:100%;padding:8px;margin-top:4px}
+    button{margin-top:12px;padding:8px 12px}
+    pre{background:#f4f4f4;padding:10px}
+  </style>
+  <style>
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 1em;
+    font-family: "Segoe UI", sans-serif;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+  tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+  </style>
+</head>
+<body>
+  <h1>献立検索</h1>
+
+  <label>モード
+    <select id="mode">
+      <option value="ai">ai (OpenAI)</option>
+      <option value="history">history (Spreadsheet)</option>
+    </select>
+  </label>
+
+  <label>所要時間（分）
+    <input id="time" type="text" placeholder="例: 30" />
+  </label>
+
+  <label>材料（カンマ区切り）
+    <input id="ingredients" type="text" placeholder="例: 鶏肉, 玉ねぎ, にんじん" />
+  </label>
+
+  <label>メニューの種類
+    <select id="category">
+      <option value="">-- 選択してください --</option>
+      <option value="和食">和食</option>
+      <option value="中華">中華</option>
+      <option value="洋食">洋食</option>
+      <option value="その他">その他</option>
+    </select>
+  </label>
+
+  <button id="send">検索</button>
+
+  <h2>結果</h2>
+  <!-- <div id="result"></div> -->
+  <div id="result"><pre id="resultText">ここに結果が表示されます</pre></div>
+
+<script>
+const sendBtn = document.getElementById('send');
+const resultText = document.getElementById('resultText');
+const resultDiv = document.getElementById('result');
+
+sendBtn.addEventListener('click', async () => {
+  const payload = {
+    mode: document.getElementById('mode').value,
+    keywords: {
+      time: document.getElementById('time').value.trim(),
+      ingredients: document.getElementById('ingredients').value.trim(),
+      category: document.getElementById('category').value
+    }
+  };
+
+  resultText.textContent = '検索中...';
+
+  try {
+    const res = await fetch('https://usefultools.onrender.com/search', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    // 結果の表示を更新
+    renderResult(data);
+
+  } catch (err) {
+    resultText.textContent = '通信エラー: ' + err.message;
+  }
+});
+
+function renderResult(data) {
+  resultDiv.innerHTML = '';
+
+  // SpreadSheetの履歴モード結果に対応
+  if (
+    data.result &&
+    data.result.found &&
+    Array.isArray(data.result.items) &&
+    data.result.items.length > 0
+  ) {
+    const firstItem = data.result.items[0];
+
+    // menu_jsonがあればパースしてテーブル化
+    if (firstItem.menu_json) {
+      // alert(firstItem.menu_json);
+      try {
+        const menus = JSON.parse(firstItem.menu_json);
+        if (Array.isArray(menus)) {
+          resultDiv.appendChild(makeTable(menus));
+          return;
+        }
+      } catch (e) {
+        console.error("menu_jsonのパースに失敗:", e);
+      }
+    }
+
+    // menu_jsonがない場合はitems全体をテーブル化
+    resultDiv.appendChild(makeTable(data.result.items));
+    return;
+  }
+
+  // 通常の配列レスポンスの場合
+  if (Array.isArray(data)) {
+    resultDiv.appendChild(makeTable(data));
+    return;
+  }
+
+  // デフォルト: JSON文字列を整形表示
+  resultDiv.textContent = JSON.stringify(data, null, 2);
+}
+
+// 表作成用ユーティリティ
+function makeTable(menus) {
+  const table = document.createElement('table');
+
+  // ヘッダー
+  const headerRow = document.createElement('tr');
+  const headers = ["料理名", "所要時間", "主な材料", "調理手順"];
+  headers.forEach(h => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    headerRow.appendChild(th);
+  });
+  table.appendChild(headerRow);
+
+  // データ行
+  menus.forEach(menu => {
+    const row = document.createElement('tr');
+    const values = [
+      menu.料理名 || menu.name || "",
+      menu.所要時間 || menu.time || "",
+      Array.isArray(menu["主な材料"]) ? menu["主な材料"].join(', ') : menu.ingredients || "",
+      menu.調理手順 || menu.steps || ""
+    ];
+    values.forEach(val => {
+      const td = document.createElement('td');
+      td.textContent = val;
+      row.appendChild(td);
+    });
+    table.appendChild(row);
+  });
+
+  return table;
+}
+</script>
+</body>
+</html>
+
+
+
