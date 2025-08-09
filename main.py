@@ -17,7 +17,7 @@ app.add_middleware(
 
 # 環境変数で設定
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-GAS_WEBHOOK = "https://script.google.com/macros/s/AKfycbxEMoykB7CFuKLL-BTbqj3bUJX2iTkSj_fAg7jLbvkkijzpMCZK0K97y-I2GsbKFEg/exec"
+GAS_WEBHOOK = "https://script.google.com/macros/s/AKfycbwCBq9SSIlEIr2FmoyELfK9oJHoaLoa11zFnfpIY_i-LqThJGK7RiRFAX046W_LxNYm/exec"
 
 if OPENAI_API_KEY:
     openai.api_key = OPENAI_API_KEY
