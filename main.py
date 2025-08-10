@@ -116,7 +116,7 @@ def get_item_detail(item: str):
         # ここはGASに品目詳細返す処理を追加してもらうか、
         # 一旦全部取得してFastAPI側で該当品目を検索して返す
         # 例としてFastAPIで検索を実装（非効率ですが）
-        resp_detail = requests.get(GAS_URL, params={"mode": "all_data"})
+        resp_detail = requests.get(GAS_WEBHOOK_LOWEST_PRICE, params={"mode": "all_data"})
         resp_detail.raise_for_status()
         all_data = resp_detail.json()  # すべての行を返す想定
         
