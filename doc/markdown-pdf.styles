@@ -1,0 +1,126 @@
+/* ベースフォント・色 */
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #333;
+  line-height: 1.6;
+  max-width: 720px;
+  margin: auto;
+  padding: 1em;
+}
+
+/* 見出しスタイル */
+h1, h2, h3 {
+  font-weight: bold;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  color: #2c3e50;
+  position: relative;
+  padding-left: 3em;
+}
+
+/* カウンター初期化 */
+body {
+  counter-reset: h1counter;
+}
+
+/* h1カウンター */
+h1 {
+  counter-reset: h2counter;
+}
+
+h1::before {
+  counter-increment: h1counter;
+  content: counter(h1counter) ".";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #2980b9;
+  color: white;
+  width: 2.2em;
+  height: 2.2em;
+  line-height: 2.2em;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 1.4em;
+  font-weight: bold;
+}
+
+/* h2カウンター */
+h2 {
+  counter-reset: h3counter;
+}
+
+h2::before {
+  counter-increment: h2counter;
+  content: counter(h1counter) "." counter(h2counter) ".";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #3498db;
+  color: white;
+  width: 1.8em;
+  height: 1.8em;
+  line-height: 1.8em;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+/* h3カウンター */
+h3::before {
+  counter-increment: h3counter;
+  content: counter(h1counter) "." counter(h2counter) "." counter(h3counter) ".";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #5dade2;
+  color: white;
+  width: 1.4em;
+  height: 1.4em;
+  line-height: 1.4em;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 1em;
+  font-weight: bold;
+}
+
+/* 表のスタイル */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+th {
+  background-color: #2980b9;
+  color: white;
+}
+
+/* コードブロック */
+pre, code {
+  font-family: Consolas, monospace;
+  background-color: #f4f4f4;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+/* リンク */
+a {
+  color: #2980b9;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
