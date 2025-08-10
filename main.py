@@ -17,11 +17,15 @@ app.add_middleware(
 
 # 環境変数で設定
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-GAS_WEBHOOK = "https://script.google.com/macros/s/AKfycbyJb93GqckOEK-6Iw99XI7qpXjIgx_SclN1fGV0__nI4JqQR_uLMR0hIPCNjKOzRY-v/exec"
+
+# 献立
+GAS_WEBHOOK_MENU_PLAN = "https://script.google.com/macros/s/AKfycbyJb93GqckOEK-6Iw99XI7qpXjIgx_SclN1fGV0__nI4JqQR_uLMR0hIPCNjKOzRY-v/exec"
+
+# 底値
+GAS_WEBHOOK_LOWEST_PRICE = "https://script.google.com/macros/s/AKfycbxQJuwmg8svCEdb5AwpLNRMWnkMN2a4TQZtAc66swr186LQYdeDwAWn8E0bswUD_1cO/exec"
 
 if OPENAI_API_KEY:
     openai.api_key = OPENAI_API_KEY
-
 
 @app.post('/search')
 async def search(req: Request):
@@ -53,11 +57,11 @@ async def search(req: Request):
         return {'source':'ai','text':text}
 
     elif mode == 'history':
-        if not GAS_WEBHOOK:
+        if not GAS_WEBHOOK_MENU_PLAN:
             raise HTTPException(status_code=500, detail='GAS webhook not configured')
         # GAS にフォワード
         try:
-            r = requests.post(GAS_WEBHOOK, json={
+            r = requests.post(GAS_WEBHOOK_MENU_PLAN, json={
                 "mode": "history",
                 "keywords": {
                     "time": keywords.get("time"),
@@ -73,3 +77,29 @@ async def search(req: Request):
 
     else:
         raise HTTPException(status_code=400, detail='mode must be "ai" or "history"')
+
+@app.get("/items")
+def get_items():
+    try:
+        resp = requests.get(GAS_WEBHOOK_LOWEST_PRICE, params={"mode": "list"})
+        resp.raise_for_status()
+        return resp.json()
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.post("/update")
+async def update_item(request: Request):
+    try:
+        data = await request.json()
+        mode = "new" if data.get("newItemMode") else "search"
+        payload = {
+            "mode": mode,
+            "item": data.get("item"),
+            "price": data.get("price"),
+            "quantity": data.get("quantity"),
+        }
+        resp = requests.post(GAS_WEBHOOK_LOWEST_PRICE, json=payload)
+        resp.raise_for_status()
+        return resp.json()
+    except Exception as e:
+        return {"error": str(e)}
