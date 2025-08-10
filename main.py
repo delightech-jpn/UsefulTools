@@ -22,7 +22,7 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 GAS_WEBHOOK_MENU_PLAN = "https://script.google.com/macros/s/AKfycbyJb93GqckOEK-6Iw99XI7qpXjIgx_SclN1fGV0__nI4JqQR_uLMR0hIPCNjKOzRY-v/exec"
 
 # 底値
-GAS_WEBHOOK_LOWEST_PRICE = "https://script.google.com/macros/s/AKfycbxQJuwmg8svCEdb5AwpLNRMWnkMN2a4TQZtAc66swr186LQYdeDwAWn8E0bswUD_1cO/exec"
+GAS_WEBHOOK_LOWEST_PRICE = "https://script.google.com/macros/s/AKfycbwn8X6CY1gKDMI3FjONKw3NB9Msz8XSfP1j770y85FPjMJfbIx9Xl7PbrbC0DXYHiRQ/exec"
 
 if OPENAI_API_KEY:
     openai.api_key = OPENAI_API_KEY
@@ -101,5 +101,27 @@ async def update_item(request: Request):
         resp = requests.post(GAS_WEBHOOK_LOWEST_PRICE, json=payload)
         resp.raise_for_status()
         return resp.json()
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/item_detail")
+def get_item_detail(item: str):
+    try:
+        resp = requests.get(GAS_WEBHOOK_LOWEST_PRICE, params={"mode": "list"})
+        resp.raise_for_status()
+        items = resp.json()
+        # items は品目一覧なので詳細取得はGASスクリプトの拡張が必要です
+        # ここはGASに品目詳細返す処理を追加してもらうか、
+        # 一旦全部取得してFastAPI側で該当品目を検索して返す
+        # 例としてFastAPIで検索を実装（非効率ですが）
+        resp_detail = requests.get(GAS_URL, params={"mode": "all_data"})
+        resp_detail.raise_for_status()
+        all_data = resp_detail.json()  # すべての行を返す想定
+        
+        for row in all_data:
+            if row["item"] == item:
+                return row
+        return {"error": "該当品目なし"}
+
     except Exception as e:
         return {"error": str(e)}
