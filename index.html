@@ -76,7 +76,7 @@ sendBtn.addEventListener('click', async () => {
     mode: document.getElementById('mode').value,
     keywords: {
       time: document.getElementById('time').value.trim(),
-      ingredients: document.getElementById('ingredients').value.trim(),
+      ingredients: getIngredientsInput(),
       category: document.getElementById('category').value
     }
   };
@@ -97,6 +97,14 @@ sendBtn.addEventListener('click', async () => {
     resultText.textContent = '通信エラー: ' + err.message;
   }
 });
+function getIngredientsInput() {
+    let ingredientsInput = document.getElementById("ingredients").value.trim();
+    // 読点をカンマに変換
+    ingredientsInput = ingredientsInput.replace(/、/g, ",");
+    // 不要な空白を削除
+    ingredientsInput = ingredientsInput.split(",").map(s => s.trim()).join(",");
+    return ingredientsInput;
+}
 
 function renderResult(data) {
   resultDiv.innerHTML = '';

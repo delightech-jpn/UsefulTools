@@ -17,7 +17,7 @@ app.add_middleware(
 
 # 環境変数で設定
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-GAS_WEBHOOK = "https://script.google.com/macros/s/AKfycbyHY_md65JAJiskNMzQ7b3-c0Ooq6XBGMPjje_6fVFoFQZVvr5VYRlS_C19-1pIzuEk/exec"
+GAS_WEBHOOK = "https://script.google.com/macros/s/AKfycbyJb93GqckOEK-6Iw99XI7qpXjIgx_SclN1fGV0__nI4JqQR_uLMR0hIPCNjKOzRY-v/exec"
 
 if OPENAI_API_KEY:
     openai.api_key = OPENAI_API_KEY
@@ -28,6 +28,9 @@ async def search(req: Request):
     body = await req.json()
     mode = body.get('mode')
     keywords = body.get('keywords', {})
+    ingredients_list = [
+        i.strip() for i in keywords.get("ingredients", "").replace("、", ",").split(",") if i.strip()
+    ]
 
     if mode == 'ai':
         if not OPENAI_API_KEY:
@@ -54,7 +57,15 @@ async def search(req: Request):
             raise HTTPException(status_code=500, detail='GAS webhook not configured')
         # GAS にフォワード
         try:
-            r = requests.post(GAS_WEBHOOK, json={'keywords': keywords}, timeout=10)
+            r = requests.post(GAS_WEBHOOK, json={
+                "mode": "history",
+                "keywords": {
+                    "time": keywords.get("time"),
+                    "ingredients": ingredients_list,
+                    "category": keywords.get("category")
+                }
+            }
+            , timeout=10)
             r.raise_for_status()
             return {'source':'history','result': r.json()}
         except requests.RequestException as e:
