@@ -107,23 +107,14 @@ async def update_item(request: Request):
         return {"error": str(e)}
 
 @app.get("/item_detail")
-def get_item_detail(item: str):
+def get_item_detail(item: str = Query(..., description="品目名")):
+    """指定品目の詳細情報を取得"""
     try:
-        resp = requests.get(GAS_WEBHOOK_LOWEST_PRICE, params={"mode": "list"})
+        resp = requests.get(
+            GAS_WEBHOOK_LOWEST_PRICE,
+            params={"mode": "detail", "item": item}
+        )
         resp.raise_for_status()
-        items = resp.json()
-        # items は品目一覧なので詳細取得はGASスクリプトの拡張が必要です
-        # ここはGASに品目詳細返す処理を追加してもらうか、
-        # 一旦全部取得してFastAPI側で該当品目を検索して返す
-        # 例としてFastAPIで検索を実装（非効率ですが）
-        resp_detail = requests.get(GAS_WEBHOOK_LOWEST_PRICE, params={"mode": "all_data"})
-        resp_detail.raise_for_status()
-        all_data = resp_detail.json()  # すべての行を返す想定
-        
-        for row in all_data:
-            if row["item"] == item:
-                return row
-        return {"error": "該当品目なし"}
-
+        return resp.json()
     except Exception as e:
         return {"error": str(e)}
