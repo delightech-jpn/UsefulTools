@@ -84,6 +84,7 @@ def get_items():
         resp = requests.get(GAS_WEBHOOK_LOWEST_PRICE, params={"mode": "list"})
         resp.raise_for_status()
         return resp.json()
+
     except Exception as e:
         return {"error": str(e)}
 
@@ -101,6 +102,7 @@ async def update_item(request: Request):
         resp = requests.post(GAS_WEBHOOK_LOWEST_PRICE, json=payload)
         resp.raise_for_status()
         return resp.json()
+
     except Exception as e:
         return {"error": str(e)}
 
