@@ -92,22 +92,33 @@ def get_items():
 
 
 @app.get("/item_detail")
-def get_item_detail(item: str):
-    """
-    指定品目の詳細情報を取得
-    GAS側に mode=detail を追加して対応するのがベスト
-    ここでは mode=all_data を呼び出してFastAPI側で検索
-    """
+def get_item_detail(item: str = Query(..., description="品目名")):
+    """指定品目の詳細情報を取得"""
     try:
-        resp = requests.get(GAS_WEBHOOK_LOWEST_PRICE, params={"mode": "detail"})
+        resp = requests.get(
+            GAS_WEBHOOK_LOWEST_PRICE,
+            params={"mode": "detail", "item": item}
+        )
         resp.raise_for_status()
-        all_data = resp.json()
-        for row in all_data:
-            if row["item"] == item:
-                return row
-        return {"error": "該当品目なし"}
+        return resp.json()
     except Exception as e:
         return {"error": str(e)}
+# def get_item_detail(item: str):
+#     """
+#     指定品目の詳細情報を取得
+#     GAS側に mode=detail を追加して対応するのがベスト
+#     ここでは mode=all_data を呼び出してFastAPI側で検索
+#     """
+#     try:
+#         resp = requests.get(GAS_WEBHOOK_LOWEST_PRICE, params={"mode": "detail"})
+#         resp.raise_for_status()
+#         all_data = resp.json()
+#         for row in all_data:
+#             if row["item"] == item:
+#                 return row
+#         return {"error": "該当品目なし"}
+#     except Exception as e:
+#         return {"error": str(e)}
 
 
 @app.post("/update")
