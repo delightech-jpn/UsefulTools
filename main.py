@@ -92,7 +92,7 @@ def get_items():
 
 
 @app.get("/item_detail")
-def get_item_detail(item: str = Query(..., description="品目名")):
+def get_item_detail(item: str): # = Query(..., description="品目名")):
     """指定品目の詳細情報を取得"""
     try:
         resp = requests.get(
