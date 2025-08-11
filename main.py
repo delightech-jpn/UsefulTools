@@ -127,3 +127,7 @@ async def update_item(request: Request):
         return resp.json()
     except Exception as e:
         return {"error": str(e)}
+
+@app.get("/")
+def root():
+    return {"status": "FastAPI on Render is running"}
