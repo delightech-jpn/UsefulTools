@@ -92,12 +92,12 @@ def get_items():
 
 
 @app.get("/item_detail")
-def get_item_detail(item: str): # = Query(..., description="品目名")):
+def get_item_detail(item: str = Query(..., description="品目名")):
     """指定品目の詳細情報を取得"""
     try:
         resp = requests.get(
             GAS_WEBHOOK_LOWEST_PRICE,
-            params={"mode": "detail", "item": item}
+            params = {"mode": "detail", "item": item}
         )
         resp.raise_for_status()
         return resp.json()
