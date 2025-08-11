@@ -102,9 +102,8 @@ def get_item_detail(item: str):
         resp = requests.get(GAS_WEBHOOK_LOWEST_PRICE, params={"mode": "detail"})
         resp.raise_for_status()
         all_data = resp.json()
-
         for row in all_data:
-            if row.get("item") == item:
+            if row["item"] == item:
                 return row
         return {"error": "該当品目なし"}
     except Exception as e:
