@@ -80,40 +80,56 @@ async def search(req: Request):
 
 @app.get("/items")
 def get_items():
+    """
+    GAS側の mode=list を呼び出して品目一覧を取得
+    """
     try:
         resp = requests.get(GAS_WEBHOOK_LOWEST_PRICE, params={"mode": "list"})
         resp.raise_for_status()
         return resp.json()
-
     except Exception as e:
         return {"error": str(e)}
 
+
+@app.get("/item_detail")
+def get_item_detail(item: str):
+    """
+    指定品目の詳細情報を取得
+    GAS側に mode=detail を追加して対応するのがベスト
+    ここでは mode=all_data を呼び出してFastAPI側で検索
+    """
+    try:
+        resp = requests.get(GAS_WEBHOOK_LOWEST_PRICE, params={"mode": "detail"})
+        resp.raise_for_status()
+        all_data = resp.json()
+
+        for row in all_data:
+            if row.get("item") == item:
+                return row
+        return {"error": "該当品目なし"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @app.post("/update")
 async def update_item(request: Request):
+    """
+    新規登録または更新
+    newItemMode: True → 新規登録
+                 False → 既存品目更新
+    """
     try:
         data = await request.json()
         mode = "new" if data.get("newItemMode") else "search"
+
         payload = {
             "mode": mode,
             "item": data.get("item"),
             "price": data.get("price"),
             "quantity": data.get("quantity"),
         }
+
         resp = requests.post(GAS_WEBHOOK_LOWEST_PRICE, json=payload)
-        resp.raise_for_status()
-        return resp.json()
-
-    except Exception as e:
-        return {"error": str(e)}
-
-@app.get("/item_detail")
-def get_item_detail(item: str = Query(..., description="品目名")):
-    """指定品目の詳細情報を取得"""
-    try:
-        resp = requests.get(
-            GAS_WEBHOOK_LOWEST_PRICE,
-            params={"mode": "detail", "item": item}
-        )
         resp.raise_for_status()
         return resp.json()
     except Exception as e:
