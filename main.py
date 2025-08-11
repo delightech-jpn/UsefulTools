@@ -22,7 +22,7 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 GAS_WEBHOOK_MENU_PLAN = "https://script.google.com/macros/s/AKfycbyJb93GqckOEK-6Iw99XI7qpXjIgx_SclN1fGV0__nI4JqQR_uLMR0hIPCNjKOzRY-v/exec"
 
 # 底値
-GAS_WEBHOOK_LOWEST_PRICE = "https://script.google.com/macros/s/AKfycbwp4nxb2yLYodbrmjbSEsW81UZa_gRTMnUJsNjjurSxsNB3uDq1OmMnZZf5uUwWKzLS/exec"
+GAS_WEBHOOK_LOWEST_PRICE = "https://script.google.com/macros/s/AKfycbwS8feqh-GdEocAdb8sHAk_xqp2Bp7offM01JiLDOADl1KTwiEIgjE15z9bEgnTj4fP/exec"
 
 if OPENAI_API_KEY:
     openai.api_key = OPENAI_API_KEY
