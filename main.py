@@ -220,3 +220,8 @@ def delete_item(item_id: str):
         return {"message": "Deleted"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/ping")
+def ping():
+    logger.info("pingエンドポイントの呼出し!!")
+    return {"message": "ping"}
