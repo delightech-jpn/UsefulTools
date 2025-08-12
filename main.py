@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 import logging
+from datetime import date
 
 logging.basicConfig(
     level=logging.INFO,
@@ -154,13 +155,13 @@ class Item(BaseModel):
     id: str
     name: str
     price: Optional[str] = None
-    deadline: Optional[str] = None
+    deadline: Optional[date] = None
     status: str
 
 class ItemCreate(BaseModel):
     name: str
     price: Optional[str] = None
-    deadline: Optional[str] = None
+    deadline: Optional[date] = None
 
 class ItemUpdate(BaseModel):
     status: str
