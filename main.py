@@ -6,6 +6,14 @@ import openai
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -171,6 +179,7 @@ def get_items():
 # 新規追加
 @app.post("/shelf/items", response_model=Item)
 def create_item(item: ItemCreate):
+    logger.info(item.name + "/" + item.price + "/" + item.deadline)
     try:
         payload = {
             "action": "add",
@@ -180,6 +189,7 @@ def create_item(item: ItemCreate):
         }
         res = requests.post(GAS_WEBHOOK_SHELF_SCAN, data=payload)
         res.raise_for_status()
+        logger.info(res.status_code)
         return res.json()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
