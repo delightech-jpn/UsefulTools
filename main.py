@@ -178,7 +178,7 @@ def get_items():
 # 新規追加
 @app.post("/shelf/items", response_model=Item)
 def create_item(item: ItemCreate):
-    logger.info(item.name + "/" + item.price + "/" + item.deadline)
+    logger.info(item.name + "/" + str(item.price) + "/" + item.deadline)
     try:
         payload = {
             "action": "add",
