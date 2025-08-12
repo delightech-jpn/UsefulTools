@@ -153,13 +153,13 @@ def root():
 class Item(BaseModel):
     id: str
     name: str
-    price: Optional[str] = None
+    price: Optional[int] = None
     deadline: Optional[str] = None
     status: str
 
 class ItemCreate(BaseModel):
     name: str
-    price: Optional[str] = None
+    price: Optional[int] = None
     deadline: Optional[str] = None
 
 class ItemUpdate(BaseModel):
