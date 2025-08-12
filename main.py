@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 import requests
 import openai
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List, Optional
 
 app = FastAPI()
 
@@ -23,6 +26,9 @@ GAS_WEBHOOK_MENU_PLAN = "https://script.google.com/macros/s/AKfycbyJb93GqckOEK-6
 
 # 底値
 GAS_WEBHOOK_LOWEST_PRICE = "https://script.google.com/macros/s/AKfycbwS8feqh-GdEocAdb8sHAk_xqp2Bp7offM01JiLDOADl1KTwiEIgjE15z9bEgnTj4fP/exec"
+
+# 購入予定
+GAS_WEBHOOK_SHELF_SCAN = "https://script.google.com/macros/s/AKfycbzY4t_ihaJ9-WTA6PiATETs_UT1vXBBSSqps0HmIRuOW-qGlTwI0FM8SWymkxzLIeQp/exec"
 
 if OPENAI_API_KEY:
     openai.api_key = OPENAI_API_KEY
@@ -131,3 +137,78 @@ async def update_item(request: Request):
 @app.get("/")
 def root():
     return {"status": "FastAPI on Render is running"}
+
+#
+# 購入予定品管理APP
+#
+
+# モデル定義
+class Item(BaseModel):
+    id: str
+    name: str
+    price: Optional[str] = None
+    deadline: Optional[str] = None
+    status: str
+
+class ItemCreate(BaseModel):
+    name: str
+    price: Optional[str] = None
+    deadline: Optional[str] = None
+
+class ItemUpdate(BaseModel):
+    status: str
+
+# 一覧取得
+@app.get("/shelf/items", response_model=List[Item])
+def get_items():
+    try:
+        res = requests.get(GAS_WEBHOOK_SHELF_SCAN, params={"action": "list"})
+        res.raise_for_status()
+        return res.json()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# 新規追加
+@app.post("/shelf/items", response_model=Item)
+def create_item(item: ItemCreate):
+    try:
+        payload = {
+            "action": "add",
+            "name": item.name,
+            "price": item.price or ""
+            "deadline": item.deadline or ""
+            "status": "pending"
+        }
+        res = requests.post(GAS_WEBHOOK_SHELF_SCAN, data=payload)
+        res.raise_for_status()
+        return res.json()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ステータス更新
+@app.put("/shelf/items/{item_id}", response_model=Item)
+def update_item(item_id: str, update: ItemUpdate):
+    try:
+        payload = {
+            "action": "update",
+            "id": item_id,
+            "status": update.status
+        }
+        res = requests.post(GAS_WEBHOOK_SHELF_SCAN, data=payload)
+        res.raise_for_status()
+        return res.json()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# 情報削除
+@app.delete("/shelf/items/{item_id}")
+def delete_item(item_id: str):
+    try:
+        res = requests.post(GAS_WEBHOOK_SHELF_SCAN, data={
+            "action": "delete",
+            "id": item_id
+        })
+        res.raise_for_status()
+        return {"message": "Deleted"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
