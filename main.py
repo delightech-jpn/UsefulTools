@@ -176,8 +176,7 @@ def create_item(item: ItemCreate):
             "action": "add",
             "name": item.name,
             "price": item.price or "",
-            "deadline": item.deadline or "",
-            "status": "pending"
+            "deadline": item.deadline or ""
         }
         res = requests.post(GAS_WEBHOOK_SHELF_SCAN, data=payload)
         res.raise_for_status()
