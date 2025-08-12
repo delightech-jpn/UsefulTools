@@ -28,7 +28,7 @@ GAS_WEBHOOK_MENU_PLAN = "https://script.google.com/macros/s/AKfycbyJb93GqckOEK-6
 GAS_WEBHOOK_LOWEST_PRICE = "https://script.google.com/macros/s/AKfycbwS8feqh-GdEocAdb8sHAk_xqp2Bp7offM01JiLDOADl1KTwiEIgjE15z9bEgnTj4fP/exec"
 
 # 購入予定
-GAS_WEBHOOK_SHELF_SCAN = "https://script.google.com/macros/s/AKfycbzY4t_ihaJ9-WTA6PiATETs_UT1vXBBSSqps0HmIRuOW-qGlTwI0FM8SWymkxzLIeQp/exec"
+GAS_WEBHOOK_SHELF_SCAN = "https://script.google.com/macros/s/AKfycbyFI8EktR0YtlyKuwkMauNOm-sY7m9lrFK5DVEfpEPBQB1l4NqcB_3hJXYvuAS7kgST/exec"
 
 if OPENAI_API_KEY:
     openai.api_key = OPENAI_API_KEY
